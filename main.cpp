@@ -39,7 +39,7 @@ int main()
         drivePath(queue(1));
         driveHome(queue(1));
         //slet den første i queue'en.
-        if(checkVaeske();)
+        if(checkVaeske())
         {
             //vent på bartender.
         }
