@@ -6,20 +6,11 @@ Class Sonar
 
 public:
 
-    Sonar(int trig, int echo) : trig_(trig), echo_(echo) 
-    {
-        pinMode(trig_, OUTPUT);
-        pinMode(echo_, INPUT);
- 
-        //TRIG pin must start LOW
-        digitalWrite(trig_, LOW);
-        delay(3);
-    } 
+    Sonar(int trig, int echo);
+    
 
-    int getDistance()                       //returnere afstand i cm.
-    {
-        return sonar.distance(30000);
-    }
+    int getDistance();                       //returnere afstand i cm.
+    
 
 private:
     int trig_;
