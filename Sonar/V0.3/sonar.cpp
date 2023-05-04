@@ -16,9 +16,6 @@ void setup() {
         //TRIG pin must start LOW
         digitalWrite(TRIG, LOW);
         delay(3);
-
-
-
 }
  
 int getCM() {

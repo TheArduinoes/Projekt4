@@ -1,7 +1,6 @@
 #include <iostream>
 #include "include/wiringPi.h"
 #include "libSonar.h"
-#include "Sonar.h"
 
 int main()
 {
@@ -9,12 +8,13 @@ int main()
     wiringPiSetupGpio();
 
     // Initialize Sonar object
-    Sonar sonar(23, 24);
+    Sonar sonar;
+    sonar.init(23,24);
 
     // Get distance measurement, tester 10 gange
-    for(i = 0, i <= 10, i++)
+    for(int i = 0; i <= 10; i++)
     {
-        int distance = sonar.getDistance();
+        int distance = sonar.distance(30000);
         // Print result
         std::cout << "Distance: " << distance << " cm" << std::endl;
         delay(1000);
