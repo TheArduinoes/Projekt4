@@ -1,15 +1,19 @@
-CXX = arm-rpizw-g++
-CXXFLAGS = -Wall -Wextra -pedantic -std=c++11 -I /wiringPi/wiringPi/
-LDFLAGS = -L /home/stud/wiringPi/wiringPi/build/arm -x 
 
-LIBS = -lwirePiLib -lpthread
+CC = arm-rpizw-g++
+CFLAGS = -Wall -Wextra -pedantic -std=c++11
+LDFLAGS = -L/home/stud/Desktop/Projekt/wiringPi/wiringPi/build/arm -lwirePiLib -pthread
+INCLUDES = -I/home/stud/desktop/wiringPi/wiringPi
+SOURCES = sonarTest.cpp libSonar.cpp sonar.cpp
+OBJECTS = $(SOURCES:.cpp=.o)
+EXECUTABLE = test
 
-TARGET=sonar
+all: $(EXECUTABLE)
 
-all: $(TARGET)
+$(EXECUTABLE): $(OBJECTS)
+	$(CC) $(CFLAGS) $(LDFLAGS) $(INCLUDES) $(OBJECTS) -o $(EXECUTABLE)
 
-$(TARGET): sonarTest.cpp sonar.cpp
-	$(CXX) $(LDFLAGS) $< -o $@ $(LIBS)
- 
+.cpp.o:
+	$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@
+
 clean:
-	rm -f sonar.o libSonar.o sonar 
+	rm -f $(EXECUTABLE) $(OBJECTS)
