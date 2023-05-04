@@ -6,7 +6,15 @@ Class Sonar
 
 public:
 
-    Sonar(int trig, int echo) : trig_(trig), echo_(echo) {};                //Pins her som gpio og ikke pin nummer.
+    Sonar(int trig, int echo) : trig_(trig), echo_(echo) 
+    {
+        pinMode(trig_, OUTPUT);
+        pinMode(echo_, INPUT);
+ 
+        //TRIG pin must start LOW
+        digitalWrite(trig_, LOW);
+        delay(3);
+    } 
 
     int getDistance()                       //returnere afstand i cm.
     {
