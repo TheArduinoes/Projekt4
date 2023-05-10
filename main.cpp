@@ -11,16 +11,41 @@ void error(string fejl)
 
 }
 
-void *listen(void *arg) {
+void *listenThread(void *arg) {
     while (1) {
         //lyt efter bord request, og tilføje til queue. 
     }
     return NULL;
-}
+};
+
+void *driveThread(void *arg) {
+    while (1) {
+        
+    }
+    return NULL;
+};
+
+struct ThreadArgs {};
 
 int main()
 {
+    int running = 1;
     //init, hvor paths, lyttethread og pins sættes. 
+    wiringPiSetupGpio();
+
+    //sonar
+    Sonar sonar;
+    sonar.init(23,24);
+    sonar.init(23,25);
+
+    //lytte thread
+    pthread_t thread;
+    struct ThreadArgs args;
+    pthread_create(&thread, NULL, listenThread, (void *)&args);
+    pthread_join(thread, NULL);
+
+    //drive
+
 
     //test væskehåndtering
     if (/* condition */)
@@ -36,15 +61,9 @@ int main()
             //gå i standby mode, og checker queue
         }
 
-        drivePath(queue(1));
-        driveHome(queue(1));
-        //slet den første i queue'en.
-        if(checkVaeske())
-        {
-            //vent på bartender.
-        }
+      
         
     }
 
-
+    return 0;
 }
