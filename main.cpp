@@ -8,6 +8,10 @@ using namespace std;
 
 void error(string fejl)
 {
+    cout << fejl << endl;
+    sleep(5);
+    
+    exit(fejl);
 
 }
 
@@ -31,7 +35,10 @@ int main()
 {
     int running = 1;
     //init, hvor paths, lyttethread og pins sættes. 
-    wiringPiSetupGpio();
+    if(wiringPiSetupGpio() == -1)
+    {
+        cout << "Fail in GPIO setup" << endl;
+    }
 
     //sonar
     Sonar sonar;
