@@ -7,7 +7,7 @@ using namespace std;
 int main()
 {
     wiringPiSetupGpio();
-    Tachometer tachometer(26,50);
+    Tachometer tachometer(26,5);
 
     tachometer.start(1000); // Kør 1000 cm
 
