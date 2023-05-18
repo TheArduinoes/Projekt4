@@ -6,6 +6,7 @@
 #include "Tachometer.h"
 #include "Motor.h"
 #include "libSonar.h"
+#include "rf-mod.h"
 
 using namespace std;
 
@@ -33,6 +34,11 @@ if (wiringPiSetup() == -1) {
     sonarL.init(23,24);
     sonarR.init(23,25);
 
+    SerialReceiver receiver;
+
+
+/*=====================functions=====================*/
+
 void error(string fejl)
 {
     cout << fejl << endl;
@@ -42,8 +48,10 @@ void error(string fejl)
 }
 
 void *listenThread(void *arg) {
-    while (1) {
-        //lyt efter bord request, og tilføje til queue. 
+    while (1) 
+    {
+        q1.push(receiver.receiveData());
+    
     }
     return NULL;
 };
@@ -68,15 +76,15 @@ void *sonarThread(void *arg)
         avgL = distanceL/10;
         avgR = distanceR/10;
 
-        if(avgL/10 <= 50 || avgR/10 <= 50)
+        if(avgL <= 50 || avgR <= 50)
         {
             sonarState = 0;
         }
-        else if(avgL/10 <= 200 && avgR/10 <= 200)
+        else if(avgL <= 200 && avgR <= 200)
         {
             sonarState = 1;
         }
-        else if(avgL/10 >= 200 || avgR/10 >= 200)
+        else if(avgL >= 200 || avgR >= 200)
         {
             sonarState = 2;
         }
@@ -193,7 +201,7 @@ int main()
     while(running)
     {
         q1.front;
-        if(q1.front == 'BORD1')
+        if(q1.front == 'bordXYZ')
         {
             q1.pop();
             driveForward(900);
@@ -210,7 +218,7 @@ int main()
             driveForward(900);
 
         }
-        if(q1.front == 'BORD2')
+        if(q1.front == 'bord2')
         {
             q1.pop();
             driveForward(600);
@@ -242,7 +250,18 @@ int main()
         }
 
         driveForward(100);
-
+        sleep(5);
+        turnLeft();
+        turnLeft();
+        turnLeft();
+        turnLeft();
+        sleep(2);
+        turnRight();
+        turnRight();
+        turnRight();
+        turnRight();
+        sleep(12);
+        driveForward(1000);
         running = 0;
     }
 
