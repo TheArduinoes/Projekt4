@@ -76,7 +76,7 @@ void *sonarThread(void *arg)
         avgL = distanceL/10;
         avgR = distanceR/10;
 
-        if(avgL <= 50 || avgR <= 50)
+        if(avgL <= 20 || avgR <= 20)
         {
             sonarState = 0;
         }
