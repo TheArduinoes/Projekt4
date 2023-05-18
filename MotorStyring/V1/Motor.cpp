@@ -9,10 +9,6 @@ Motor::Motor(int pwmPin, int pinA, int pinB, int pinC, int pinD)
 
 void Motor::setup()
 {
-    if (wiringPiSetup() == -1) {
-        std::cout << "Failed to setup wiringPi!" << std::endl;
-        return;
-    }
 
     pinMode(pwmPin, PWM_OUTPUT); // Set the pin as PWM output
     pinMode(pinA, OUTPUT);
