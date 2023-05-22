@@ -3,54 +3,55 @@
 #include <pthread.h>
 #include <unistd.h>
 #include <string>
-#include "Tachometer.h"
-#include "Motor.h"
-#include "libSonar.h"
-#include "rf-mod.h"
+#include <queue>
+#include "include/wiringPi.h"
+#include "MotorStyring/V1/Tachometer.h"
+#include "MotorStyring/V1/Motor.h"
+#include "Sonar/V1.0/libSonar.h"
+#include "pumpe/pump.h"
+#include "Modtager/rf-mod.h"
 
 using namespace std;
 
+
+void initGpio()
+{
+    wiringPiSetupGpio();
+    cout << "Hello from Init" << endl;
+}
+
+
 int sonarState = 2;             //sensor afstand, default er 2, som betyder clear
-std::queue<string> q1;          //kunde queue'en.
-if (wiringPiSetup() == -1) {
-        std::cout << "Failed to setup wiringPi!" << std::endl;
-        return 1;
-    }
+int pumpPin = 12;
+queue<string> q1;          //kunde queue'en.
 
-    // Opret instanser af Tachometer-klassen for både højre og venstre side
-    Tachometer rightTachometer(26, 2.5);
-    Tachometer leftTachometer(19, 2.5);
+// Opret instanser af Tachometer-klassen for både højre og venstre side
+Tachometer rightTachometer(26, 2.5);
+Tachometer leftTachometer(19, 2.5);
 
-    // Opret en instans af Motor-klassen
-    //Motor myMotor(PWM_PIN, HIGH_PINA, HIGH_PINB, HIGH_PINC, HIGH_PIND);
-    Motor myMotor(18, 17, 27, 22, 23);
+//pump
+Pump pump(pumpPin);
 
-    // Initialiser motor og indstillinger
-    myMotor.setup();
+// Opret en instans af Motor-klassen
+//Motor myMotor(PWM_PIN, HIGH_PINA, HIGH_PINB, HIGH_PINC, HIGH_PIND);
+Motor myMotor(18, 17, 27, 22, 23);
 
-    //sonar
-    Sonar sonarL;
-    Sonar sonarR;
-    sonarL.init(23,24);
-    sonarR.init(23,25);
+//sonar
+Sonar sonarL;
+Sonar sonarR;    
 
-    SerialReceiver receiver;
-
+SerialReceiver receiver;
 
 /*=====================functions=====================*/
 
-void error(string fejl)
-{
-    cout << fejl << endl;
-    sleep(5);
-    
-    exit(fejl);
-}
+
 
 void *listenThread(void *arg) {
     while (1) 
     {
+        
         q1.push(receiver.receiveData());
+        cout << q1.front() << endl;
     
     }
     return NULL;
@@ -76,6 +77,9 @@ void *sonarThread(void *arg)
         avgL = distanceL/10;
         avgR = distanceR/10;
 
+        //cout << avgL << endl;
+        //cout << avgR << endl;
+
         if(avgL <= 20 || avgR <= 20)
         {
             sonarState = 0;
@@ -88,7 +92,8 @@ void *sonarThread(void *arg)
         {
             sonarState = 2;
         }
-        sleep(0.5);                 //sampler hver 0.5 sekunder. 
+        //cout << sonarState << endl;
+        sleep(0.8);                 //sampler hver 0.5 sekunder. 
     }
          
     return NULL;
@@ -96,35 +101,37 @@ void *sonarThread(void *arg)
 
 void driveForward(int driveCM)
 {
-    myMotor.setForward();
+    cout << "driveForward called, Distance: " << driveCM <<  endl;
+    myMotor.setBackward();
     myMotor.setPWM100();
     rightTachometer.start(driveCM);
     leftTachometer.start(driveCM);
     int driveState = 1;                 //2 pwm = 100, 1 pwm = 30, 0 = stop 
 
-    while (rightTachometer.get_distance() < 300 || leftTachometer.get_distance() < 300) {
+    while (rightTachometer.get_distance() < driveCM || leftTachometer.get_distance() < driveCM) {
         //check sensor
-        if(sensorState == 1 && driveState != 1)
+        if(sonarState == 1 && driveState != 1)
         {
             std::cout << "Entering Slowed State" << endl;
             myMotor.setPWM30();
             driveState = 1;
         }
         
-        else if(sensorState == 0 && driveState != 0)        
+        else if(sonarState == 0 && driveState != 0)        
         {
             std::cout << "Entering Stop State" << endl;
             myMotor.stopPWM();
             driveState = 0;
         }
-        else if(sensorState == 2 && driveState != 2)
+        else if(sonarState == 2 && driveState != 2)
         {
             std::cout << "Entering Fast State" << endl;
-            myMotor.setPWM100();
+            myMotor.setPWM30();
             driveState = 2;
         }
         
     }
+    //sleep(3);
 
     // Stop robotten
     myMotor.stop();
@@ -133,16 +140,18 @@ void driveForward(int driveCM)
     // Nulstil afstandene for tachometrene
     rightTachometer.reset_distance();
     leftTachometer.reset_distance();
+
+    return;
 }
 
-void turnRight()
+void turnRight(int angle)
 {
     myMotor.setClockwise();
     myMotor.setPWM100();
-    rightTachometer.start(90);  // Drej 90 grader til venstre
-    leftTachometer.start(90);
+    rightTachometer.start(angle);  // Drej 90 grader til venstre
+    leftTachometer.start(angle);
 
-    while (rightTachometer.get_distance() < 90 || leftTachometer.get_distance() < 90) {
+    while (rightTachometer.get_distance() < angle || leftTachometer.get_distance() < angle) {
         // Vent eller udfør andre opgaver
     }
     myMotor.stop();
@@ -155,14 +164,14 @@ void turnRight()
     return;
 }
 
-void turnLeft()
+void turnLeft(int angle)
 {
     myMotor.setAntiClockwise();
     myMotor.setPWM100();
-    rightTachometer.start(90);  // Drej 90 grader til højre
-    leftTachometer.start(90);
+    rightTachometer.start(angle);  // Drej 90 grader til højre
+    leftTachometer.start(angle);
 
-    while (rightTachometer.get_distance() < 90 || leftTachometer.get_distance() < 90) {
+    while (rightTachometer.get_distance() < angle || leftTachometer.get_distance() < angle) {
         // Vent eller udfør andre opgaver
     }
     myMotor.stop();
@@ -174,21 +183,51 @@ void turnLeft()
 
     return;
 }
+
+void serveDrink()
+{
+    pump.activatePump(pumpPin,1);
+    sleep(8);
+    pump.deactivatePump(pumpPin,1);
+
+    return;
+}
+
 
 /*=====================MAIN=====================*/
 int main()
 {
 
     /*=====================INIT=====================*/
-    
+    cout << "Hello from from Main" << endl;
+    sonarL.init(8,24);
+    sonarR.init(8,25);
+    myMotor.setup();
+
+    int ErrorLED = 16;
+    int pourBottom = 6;
+    int sendHomeBottom = 13;
+
+    pinMode(ErrorLED, OUTPUT);                        //rød LED
+    pinMode(pourBottom, INPUT);                          //skænk knappen
+    pinMode(sendHomeBottom, INPUT);                         //send hjem
+    digitalWrite(pourBottom, LOW);
+    digitalWrite(sendHomeBottom, LOW);
+    cout << "Setup done" << endl << endl;
+    pump.deactivatePump(pumpPin,1);
+
+
+
     //lytte thread
     pthread_t ThreadListen;
     pthread_t ThreadSonar;
     
     pthread_create(&ThreadListen, NULL, listenThread, NULL);
     pthread_create(&ThreadSonar, NULL, sonarThread, NULL);
-    pthread_join(ThreadListen, NULL);
-    pthread_join(ThreadSonar, NULL);
+    
+
+    //sleep(60);
+    cout << "Threads done" << endl << endl;
 
     /*if ( condition )
     {
@@ -200,70 +239,79 @@ int main()
     
     while(running)
     {
-        q1.front;
-        if(q1.front == 'bordXYZ')
+        
+        if(q1.front() == "bordXYZ")
         {
             q1.pop();
             driveForward(900);
-            turnRight();
+            turnRight(170);
             driveForward(300);
 
-
-            //lyt til knap og kør funktion udfra
-
-            turnLeft();
-            turnLeft();
+            while(digitalRead(sendHomeBottom) == LOW)
+            {
+                if(digitalRead(pourBottom) == HIGH)
+                {
+                    serveDrink();
+                    cout << "Drink served" << endl;
+                }
+            }
+        cout << "Send Home" << endl;
+            turnLeft(170);
+            turnLeft(170);
             driveForward(300);
-            turnLeft();
+            turnLeft(170);
             driveForward(900);
 
         }
-        if(q1.front == 'bord2')
+        if(q1.front() == "bord2")
         {
             q1.pop();
             driveForward(600);
-            turnRight();
+            turnRight(170);
             driveForward(300);
 
 
-            //lyt til knap og kør funktion udfra
-            turnLeft();
-            turnLeft();
+            while(digitalRead(sendHomeBottom) == LOW)
+            {
+                if(digitalRead(pourBottom) == HIGH)
+                {
+                    serveDrink();
+                    cout << "Drink served" << endl;
+                }
+            }
+        cout << "Send Home" << endl;
+            turnLeft(170);
+            turnLeft(170);
             driveForward(300);
-            turnLeft();
+            turnLeft(170);
             driveForward(600);
         }
-        if(q1.front == 'BORD3')
+        if(q1.front() == "BORD3")
         {
             q1.pop();
             driveForward(300);
-            turnRight();
+            turnRight(170);
             driveForward(300);
 
 
-            //lyt til knap og kør funktion udfra
-            turnLeft();
-            turnLeft();
+            while(digitalRead(sendHomeBottom) == LOW)
+            {
+                if(digitalRead(pourBottom) == HIGH)
+                {
+                    serveDrink();
+                    cout << "Drink served" << endl;
+                }
+            }
+        cout << "Send Home" << endl;
+            turnLeft(170);
+            turnLeft(170);
             driveForward(300);
-            turnLeft();
+            turnLeft(170);
             driveForward(300);
         }
 
-        driveForward(100);
-        sleep(5);
-        turnLeft();
-        turnLeft();
-        turnLeft();
-        turnLeft();
-        sleep(2);
-        turnRight();
-        turnRight();
-        turnRight();
-        turnRight();
-        sleep(12);
-        driveForward(1000);
-        running = 0;
     }
-
+    pthread_join(ThreadSonar, NULL);
+    pthread_join(ThreadListen, NULL);
     return 0;
 }

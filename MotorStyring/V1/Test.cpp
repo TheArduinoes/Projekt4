@@ -4,8 +4,8 @@
 
 using namespace std;
 
-int main()
-{
+
+
     // Opret instanser af Tachometer-klassen for både højre og venstre side
     Tachometer rightTachometer(26, 2.5);
     Tachometer leftTachometer(19, 2.5);
@@ -14,59 +14,82 @@ int main()
     //Motor myMotor(PWM_PIN, HIGH_PINA, HIGH_PINB, HIGH_PINC, HIGH_PIND);
     Motor myMotor(18, 17, 27, 22, 23);
 
+
+void driveForward(int distance)
+{
+    myMotor.setForward();
+    myMotor.setPWM100();
+    rightTachometer.start(distance);
+    leftTachometer.start(distance);
+
+    while (rightTachometer.get_distance() < distance || leftTachometer.get_distance() < distance) {
+        // Vent eller udfør andre opgaver
+    }
+
+    myMotor.stop();
+    myMotor.stopPWM();
+
+    rightTachometer.reset_distance();
+    leftTachometer.reset_distance();
+}
+
+void turnLeft(int angle)
+{
+    myMotor.setAntiClockwise();
+    myMotor.setPWM100();
+    rightTachometer.start(angle);
+    leftTachometer.start(angle);
+
+    while (rightTachometer.get_distance() < angle || leftTachometer.get_distance() < angle) {
+        // Vent eller udfør andre opgaver
+    }
+
+    myMotor.stop();
+    myMotor.stopPWM();
+
+    rightTachometer.reset_distance();
+    leftTachometer.reset_distance();
+}
+
+void turnRight(int angle)
+{
+    myMotor.setClockwise();
+    myMotor.setPWM100();
+    rightTachometer.start(angle);
+    leftTachometer.start(angle);
+
+    while (rightTachometer.get_distance() < angle || leftTachometer.get_distance() < angle) {
+        // Vent eller udfør andre opgaver
+    }
+
+    myMotor.stop();
+    myMotor.stopPWM();
+
+    rightTachometer.reset_distance();
+    leftTachometer.reset_distance();
+}
+
+int main()
+{
+    wiringPiSetupGpio();
+    
     // Initialiser motor og indstillinger
     myMotor.setup();
 
     // Kør fremad 300 cm
-    myMotor.setForward();
-    myMotor.setPWM100();
-    rightTachometer.start(300);
-    leftTachometer.start(300);
-
-    while (rightTachometer.get_distance() < 300 || leftTachometer.get_distance() < 300) {
-        // Vent eller udfør andre opgaver
-    }
-
-    // Stop robotten
-    myMotor.stop();
-    myMotor.stopPWM();
-
-    // Nulstil afstandene for tachometrene
-    rightTachometer.reset_distance();
-    leftTachometer.reset_distance();
+    driveForward(300);
 
     // Drej til venstre
-    myMotor.setAntiClockwise();
-    myMotor.setPWM100();
-    rightTachometer.start(90);  // Drej 90 grader til venstre
-    leftTachometer.start(90);
+    turnLeft(90);
 
-    while (rightTachometer.get_distance() < 90 || leftTachometer.get_distance() < 90) {
-        // Vent eller udfør andre opgaver
-    }
-
-    // Stop robotten
-    myMotor.stop();
-    myMotor.stopPWM();
-
-    // Nulstil afstandene for tachometrene
-    rightTachometer.reset_distance();
-    leftTachometer.reset_distance();
+    // Drej til højre
+    turnRight(90);
 
     // Kør fremad 200 cm
-    myMotor.setForward();
-    myMotor.setPWM100();
-    rightTachometer.start(200);
-    leftTachometer.start(200);
-
-    while (rightTachometer.get_distance() < 200 || leftTachometer.get_distance() < 200) {
-        // Vent eller udfør andre opgaver
-    }
-
-    // Stop robotten
-    myMotor.stop();
-    myMotor.stopPWM();
+    driveForward(200);
 
     return 0;
 }
+
+
 

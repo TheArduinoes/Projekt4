@@ -1,4 +1,5 @@
 #include "Tachometer.h"
+#include <iostream>
 
 Tachometer::Tachometer(int pin, double tire_circumference) :
     m_pin(pin),
@@ -7,7 +8,8 @@ Tachometer::Tachometer(int pin, double tire_circumference) :
     m_distance(0.0),
     m_drive(0)
 {
-    
+    wiringPiSetupGpio();
+    std::cout << "Hello from Init" << std::endl;
     digitalWrite(m_pin, LOW);
     pinMode(m_pin, INPUT);
     
