@@ -9,16 +9,12 @@ Motor::Motor(int pwmPin, int pinA, int pinB, int pinC, int pinD)
 
 void Motor::setup()
 {
-    if (wiringPiSetup() == -1) {
-        std::cout << "Failed to setup wiringPi!" << std::endl;
-        return;
-    }
 
     pinMode(pwmPin, PWM_OUTPUT); // Set the pin as PWM output
-    pinMode(pinA, OUTPUT);
-    pinMode(pinB, OUTPUT);
-    pinMode(pinC, OUTPUT);
-    pinMode(pinD, OUTPUT);
+    pinMode(pinA, OUTPUT);      // Højre motorstyring 
+    pinMode(pinB, OUTPUT);      // Højre motorstyring 
+    pinMode(pinC, OUTPUT);       // Venstre motorstyring
+    pinMode(pinD, OUTPUT);       // Venstre motorstyring
 
     pwmSetMode(PWM_MODE_MS);      // Set the PWM mode to Mark-Space mode
     pwmSetRange(range);           // Set the PWM range to 100

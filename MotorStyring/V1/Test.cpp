@@ -4,11 +4,16 @@
 
 using namespace std;
 
+void initGpio ()
+{
+    wiringPiSetupGPio();
+     cout << "Failed to setup wiringPi!" << endl;
 
+}
 
     // Opret instanser af Tachometer-klassen for både højre og venstre side
-    Tachometer rightTachometer(26, 2.5);
-    Tachometer leftTachometer(19, 2.5);
+    Tachometer rightTachometer(19, 2.5); 
+    Tachometer leftTachometer(26, 2.5);
 
     // Opret en instans af Motor-klassen
     //Motor myMotor(PWM_PIN, HIGH_PINA, HIGH_PINB, HIGH_PINC, HIGH_PIND);
@@ -80,10 +85,10 @@ int main()
     driveForward(300);
 
     // Drej til venstre
-    turnLeft(90);
+    turnLeft(18);
 
     // Drej til højre
-    turnRight(90);
+    turnRight(18);
 
     // Kør fremad 200 cm
     driveForward(200);
