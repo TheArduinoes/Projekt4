@@ -66,7 +66,7 @@ void Motor::stop()
 
 void Motor::changePWM(int dutyCycle)
 {
-    int duty = (dutyCycle * range) / 100; // Calculate the duty cycle value
+    int duty = (dutyCycle * range) / 5; // Calculate the duty cycle value
     pwmWrite(pwmPin, duty); // Set the duty cycle
 }
 

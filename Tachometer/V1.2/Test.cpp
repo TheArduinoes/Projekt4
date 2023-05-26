@@ -10,13 +10,13 @@ int main()
     
       wiringPiSetupGpio();
     // Opret to instanser af Tachometer-klassen med de relevante pinnumre og dækomkredse
-    Tachometer rightTachometer(26, 5);
-    Tachometer leftTachometer(19, 5);
+    Tachometer rightTachometer(26, 2.5);
+    Tachometer leftTachometer(19, 2.5);
 
 
      // Start måling for højre og venstre tachometre
-     double LEFT_DRIVE = 50.0;
-     double RIGHT_DRIVE = 50.0;
+     double LEFT_DRIVE = 25.0;
+     double RIGHT_DRIVE = 25.0;
     
     rightTachometer.start(RIGHT_DRIVE);
     leftTachometer.start(LEFT_DRIVE);
@@ -37,7 +37,7 @@ int main()
 
             break;
         }
-        delay(10); // Vent i 10 ms
+        delay(100); // Vent i 10 ms
     }
     
     return 0;

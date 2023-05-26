@@ -12,11 +12,10 @@ public:
     void reset_distance();
 private:
     int m_pin; // GPIO pin nummer
-    double m_tire_circumference; // dækkets omkreds
+    double m_tire_circumference; // Den tilbagelagte distance pr. puls (afstand mellem holer)
     int m_previous_value; // Forrige værdi på GPIO pin
-    double m_distance; // Kørt afstand i cm
-    int m_drive; // hvor meget den skal køre
+    double m_distance; // Den tilbagelagte distance i cm
+    int m_drive; // den ønskede køreafstand
 };
 
 #endif
-
