@@ -1,4 +1,4 @@
-#include <iostream>
+w#include <iostream>
 #include "Motor.h"
 
 Motor::Motor(int pwmPin, int pinA, int pinB, int pinC, int pinD)
@@ -18,7 +18,7 @@ void Motor::setup()
 
     pwmSetMode(PWM_MODE_MS);      // Set the PWM mode to Mark-Space mode
     pwmSetRange(range);           // Set the PWM range to 100
-    pwmSetClock(384);             // Set the PWM clock to 50 kHz
+    pwmSetClock(384);             // Set the PWM clock to 500 Hz
 
     int duty = (dutyCycle * range) / 100; // Calculate the duty cycle value
     pwmWrite(pwmPin, duty);      // Set the duty cycle
@@ -66,7 +66,7 @@ void Motor::stop()
 
 void Motor::changePWM(int dutyCycle)
 {
-    int duty = (dutyCycle * range) / 5; // Calculate the duty cycle value
+    int duty = (dutyCycle * range) / 100; // Calculate the duty cycle value
     pwmWrite(pwmPin, duty); // Set the duty cycle
 }
 
